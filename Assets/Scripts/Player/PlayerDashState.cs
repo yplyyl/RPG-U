@@ -14,17 +14,22 @@ public class PlayerDashState : PlayerState
 
         //SkillManager.instance.clone.CreateClone();
         //player.skill.clone.CreateClone(player.transform,Vector3.zero);
-        player.skill.clone.CreateCloneOnDashStart();
+        //skill.clone.CreateCloneOnDashStart();
+        player.skill.dash.CreateCloneOnDashStart();
 
         stateTimer = player.dashDuration;
+
+        player.stats.MakeInvincible(true);
     }
 
     public override void Exit()
     {
         base.Exit();
 
-        player.skill.clone.CreateCloneOnDashOver();
+        player.skill.dash.CreateCloneOnDashOver();
         player.SetVelocity(0, rb.velocity.y);
+
+        player.stats.MakeInvincible(false);
     }
 
     public override void Update()

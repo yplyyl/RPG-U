@@ -34,7 +34,7 @@ public class PlayerBlackholeState : PlayerState
         base.Exit();
 
         player.rb.gravityScale = defaultGravity;    //恢复黑洞技能的重力
-        player.MakeTransprent(false);   //退出黑洞技能的透明状态
+        player.fx.MakeTransprent(false);   //退出黑洞技能的透明状态
     }
 
     public override void Update()

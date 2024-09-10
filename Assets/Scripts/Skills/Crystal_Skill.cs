@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Crystal_Skill : Skill
 {
@@ -10,21 +11,68 @@ public class Crystal_Skill : Skill
     private GameObject currentCrystal;
 
     [Header("Crystal mirage")]
+    [SerializeField] private UI_SkillTreeSlot cloneInsteadUnlockButton;
     [SerializeField] private bool cloneInsteadOfCrystal;
 
-    [Header("Explode crystal")]
+    [Header("Crystal simple")]
+    [SerializeField] private UI_SkillTreeSlot crystalUnlockButton;
+    public bool crystalUnlocked { get; private set; }
+
+    [Header("Explosive crystal")]
+    [SerializeField] private UI_SkillTreeSlot explosiveUnlockButton;
     [SerializeField] private bool canExplode;
 
     [Header("Move crystal")]
+    [SerializeField] private UI_SkillTreeSlot movingUnlockButton;
     [SerializeField] private bool canMoveToEnemy;
     [SerializeField] private float moveSpeed;
 
     [Header("Multi Stack crystal")]
+    [SerializeField] private UI_SkillTreeSlot multiStackUnlockButton;
     [SerializeField] private bool canUseMultiStacks;
     [SerializeField] private int amountOfStacks;
     [SerializeField] private float multiStackCooldown;
     [SerializeField] private float useTimeWindow;
     [SerializeField] private List<GameObject> crystalLeft = new List<GameObject>(); //水晶列表
+
+    protected override void Start()
+    {
+        base.Start();
+
+        crystalUnlockButton.GetComponent<Button>().onClick.AddListener(UnlockCrystal);
+        cloneInsteadUnlockButton.GetComponent<Button>().onClick.AddListener(UnlockCrystalmirage);
+        explosiveUnlockButton.GetComponent<Button>().onClick.AddListener(UnlockExplosiveCrystal);
+        movingUnlockButton.GetComponent<Button>().onClick.AddListener(UnlockMoveCrystal);
+        multiStackUnlockButton.GetComponent<Button>().onClick.AddListener(UnlockMultiStackCrystal);
+    }
+
+    #region Unlock skill 
+    private void UnlockCrystal()
+    {
+        if (crystalUnlockButton.unlocked)
+            crystalUnlocked = true;
+    }
+    private void UnlockCrystalmirage()
+    {
+        if (cloneInsteadUnlockButton.unlocked)
+            cloneInsteadOfCrystal = true;
+    }
+    private void UnlockExplosiveCrystal()
+    {
+        if (explosiveUnlockButton.unlocked)
+            canExplode = true;
+    }
+    private void UnlockMoveCrystal()
+    {
+        if (movingUnlockButton.unlocked)
+            canMoveToEnemy = true;
+    }
+    private void UnlockMultiStackCrystal()
+    {
+        if (multiStackUnlockButton.unlocked)
+            canUseMultiStacks = true;
+    }
+    #endregion
 
     public override void UseSkill()
     {
@@ -67,7 +115,7 @@ public class Crystal_Skill : Skill
 
         Crystal_Skill_Controller currentCrystalScript = currentCrystal.GetComponent<Crystal_Skill_Controller>();
 
-        currentCrystalScript.SetupCrystal(crystalDuration, canExplode, canMoveToEnemy, moveSpeed, FindClosestEnemy(currentCrystal.transform));
+        currentCrystalScript.SetupCrystal(crystalDuration, canExplode, canMoveToEnemy, moveSpeed, FindClosestEnemy(currentCrystal.transform), player);
     }
 
     public void CurrentCrystalChooseRandomTarget() => currentCrystal.GetComponent<Crystal_Skill_Controller>().ChooseRandomEnemy();
@@ -88,7 +136,7 @@ public class Crystal_Skill : Skill
                 crystalLeft.Remove(crystalToSpawn);
 
                 newCrystal.GetComponent<Crystal_Skill_Controller>().
-                    SetupCrystal(crystalDuration, canExplode, canMoveToEnemy, moveSpeed, FindClosestEnemy(newCrystal.transform));
+                    SetupCrystal(crystalDuration, canExplode, canMoveToEnemy, moveSpeed, FindClosestEnemy(newCrystal.transform), player);
 
                 //当水晶发射完设置冷却时间和使用补充水晶
                 if (crystalLeft.Count <= 0)
@@ -121,5 +169,14 @@ public class Crystal_Skill : Skill
 
         cooldownTimer = multiStackCooldown;
         RefilCrystal();
+    }
+
+    public override void CheckUnlock()
+    {
+        UnlockCrystal();
+        UnlockCrystalmirage();
+        UnlockExplosiveCrystal();
+        UnlockMoveCrystal();
+        UnlockMultiStackCrystal();
     }
 }

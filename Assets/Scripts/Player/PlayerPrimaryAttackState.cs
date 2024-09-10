@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerPrimaryAttackState : PlayerState
 {
-    private int comboCounter;
+    public int comboCounter { get; private set; }
 
     private float lastTimeAttacked;
     private float comboWindow = 2;
@@ -15,6 +15,8 @@ public class PlayerPrimaryAttackState : PlayerState
     public override void Enter()
     {
         base.Enter();
+
+        //AudioManager.instance.PlaySfx(2);
 
         xInput = 0;
 

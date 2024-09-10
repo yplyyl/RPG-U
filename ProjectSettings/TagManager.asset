@@ -14,7 +14,7 @@ TagManager:
   - Player
   - Enemy
   - Sword
-  - 
+  - Item
   - 
   - 
   - 
@@ -47,9 +47,18 @@ TagManager:
   - name: Ground
     uniqueID: 3160303209
     locked: 0
+  - name: Checkpoint
+    uniqueID: 2949433731
+    locked: 0
+  - name: Item
+    uniqueID: 854827745
+    locked: 0
   - name: Enemy
     uniqueID: 4291583649
     locked: 0
   - name: Player
     uniqueID: 546459787
+    locked: 0
+  - name: FX
+    uniqueID: 1061991113
     locked: 0

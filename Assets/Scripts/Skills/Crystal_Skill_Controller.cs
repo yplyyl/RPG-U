@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Crystal_Skill_Controller : MonoBehaviour
 {
+    private Player player;
     private Animator anim => GetComponent<Animator>();
     private CircleCollider2D cd => GetComponent<CircleCollider2D>();
 
@@ -19,8 +20,9 @@ public class Crystal_Skill_Controller : MonoBehaviour
     private Transform closestTarget;
     [SerializeField] private LayerMask whatIsEnemy;
 
-    public void SetupCrystal(float _crystalDuration, bool _canExplode, bool _canMove, float _moveSpeed, Transform _closestTarget)
+    public void SetupCrystal(float _crystalDuration, bool _canExplode, bool _canMove, float _moveSpeed, Transform _closestTarget, Player _player)
     {
+        player = _player;
         crystalExistTimer = _crystalDuration;
         canExplode = _canExplode;
         canMove = _canMove;
@@ -49,6 +51,9 @@ public class Crystal_Skill_Controller : MonoBehaviour
         //可以运动就靠近敌人后爆炸，范围小于1时爆炸，并且爆炸时不能移动
         if (canMove)
         {
+            if (closestTarget == null)
+                return;
+
             //修复攻击范围内没有敌人会报错的bug
             if (closestTarget != null)
             {            
@@ -79,7 +84,16 @@ public class Crystal_Skill_Controller : MonoBehaviour
         foreach (var hit in colliders)
         {
             if (hit.GetComponent<Enemy>() != null)
-                hit.GetComponent<Enemy>().Damage();
+            {
+                //hit.GetComponent<Enemy>().DamageEffect();
+                hit.GetComponent<Entity>().SetupKnockbackDir(transform);
+                player.stats.DoMagicDamage(hit.GetComponent<Characterstats>());
+
+                ItemData_Equipment equipedAmulet = Inventory.instance.GetEquipment(EquipmentType.Amulet);
+
+                if (equipedAmulet != null)
+                    equipedAmulet.Effect(hit.transform);
+            }
         }
     }
 

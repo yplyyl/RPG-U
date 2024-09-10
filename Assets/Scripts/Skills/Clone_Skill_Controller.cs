@@ -5,11 +5,13 @@ using UnityEngine;
 //Clone_Skill_Controller是绑在Clone体上的也就是Prefah上的
 public class Clone_Skill_Controller : MonoBehaviour
 {
+    private Player player;
     private SpriteRenderer sr;
     private Animator anim;
     [SerializeField] private float colorLoosingSpeed;
 
     private float cloneTimer;
+    private float attackMultiplier;
     [SerializeField] private Transform attackCheck;
     [SerializeField] private float attackCheckRadius = .8f;
     private Transform closestEnemy;
@@ -38,18 +40,22 @@ public class Clone_Skill_Controller : MonoBehaviour
         }
     }
 
-    public void SetupClone(Transform _newTransform,float _cloneDuration, bool _canAttack, Vector3 _offset, Transform _closestEnemy, bool _canDupicateClone, float _chanceToDupicate)
+    public void SetupClone(Transform _newTransform,float _cloneDuration, bool _canAttack, Vector3 _offset, Transform _closestEnemy, 
+        bool _canDupicateClone, float _chanceToDupicate, Player _player, float _attackMultiplier)
     {
         if (_canAttack)
             anim.SetInteger("AttackNumber", Random.Range(1, 3));
         //返回[minInclusive..maxInclusive]（范围包括在内）内的随机浮点值。如果minInclusive大于maxInclusive，则数字会自动交换。
 
+        player = _player;
         transform.position = _newTransform.position + _offset;  //这个函数实现了将克隆出来的对象的位置与Dash之前的位置重合的效果
         cloneTimer = _cloneDuration;
 
         closestEnemy = _closestEnemy;
         canDupicateClone = _canDupicateClone;
         chanceToDupicate = _chanceToDupicate;
+        attackMultiplier = _attackMultiplier;
+
         FaceClosestTarget();
     }
 
@@ -65,11 +71,25 @@ public class Clone_Skill_Controller : MonoBehaviour
         foreach (var hit in colliders)
         {
             if (hit.GetComponent<Enemy>() != null)
-            { 
-                hit.GetComponent<Enemy>().Damage();
+            {
+                //hit.GetComponent<Enemy>().DamageEffect();
+                //player.stats.DoDamage(hit.GetComponent<Characterstats>());
+                hit.GetComponent<Entity>().SetupKnockbackDir(transform);
 
-                //使角色克隆体的攻击有概率产生新的克隆体
-                if (canDupicateClone)
+                PlayerStats playerStats = player.GetComponent<PlayerStats>();
+                EnemyStats enemyStats = hit.GetComponent<EnemyStats>();
+
+                playerStats.CloneDamage(enemyStats, attackMultiplier);
+
+                if (player.skill.clone.canApplyOnHitEffect)
+                {
+                    ItemData_Equipment weaponDate = Inventory.instance.GetEquipment(EquipmentType.Weapon);
+
+                    if (weaponDate != null)
+                        weaponDate.Effect(hit.transform);
+                }
+
+                if (canDupicateClone)       //使角色克隆体的攻击有概率产生新的克隆体
                 { 
                     if (Random.Range(0, 100) < chanceToDupicate)
                     {

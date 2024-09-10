@@ -17,7 +17,12 @@ public class Enemy_SkeletionAnimationTriggers : MonoBehaviour
         foreach(var hit in colliders)
         {
             if (hit.GetComponent<Player>() != null)
-                hit.GetComponent<Player>().Damage();
+            {
+                //hit.GetComponent<Player>().Damage();
+                PlayerStats _target = hit.GetComponent<PlayerStats>();
+                enemy.stats.DoDamage(_target);
+            }
+
         }
     }
 
